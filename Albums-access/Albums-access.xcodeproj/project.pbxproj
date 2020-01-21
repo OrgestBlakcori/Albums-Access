@@ -14,6 +14,7 @@
 		2406C6A823D1E3810035EAAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2406C6A723D1E3810035EAAA /* Assets.xcassets */; };
 		2406C6AB23D1E3810035EAAA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2406C6A923D1E3810035EAAA /* LaunchScreen.storyboard */; };
 		2406C6B323D1E9150035EAAA /* AlbumCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2406C6B223D1E9150035EAAA /* AlbumCell.swift */; };
+		24479D7323D5DF8A00C945C3 /* AlbumsCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24479D7223D5DF8A00C945C3 /* AlbumsCollectionViewController.swift */; };
 		245186B823D4F94400278EE9 /* PHAssetExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 245186B723D4F94400278EE9 /* PHAssetExtension.swift */; };
 		D5326B42268A6E8C7340C75E /* Pods_Albums_access.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0DA9DF1DCA6229AC6067611 /* Pods_Albums_access.framework */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 		2406C6AA23D1E3810035EAAA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2406C6AC23D1E3810035EAAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2406C6B223D1E9150035EAAA /* AlbumCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCell.swift; sourceTree = "<group>"; };
+		24479D7223D5DF8A00C945C3 /* AlbumsCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsCollectionViewController.swift; sourceTree = "<group>"; };
 		245186B723D4F94400278EE9 /* PHAssetExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PHAssetExtension.swift; sourceTree = "<group>"; };
 		8247C59B49A7EA880BE81290 /* Pods-Albums-access.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Albums-access.debug.xcconfig"; path = "Target Support Files/Pods-Albums-access/Pods-Albums-access.debug.xcconfig"; sourceTree = "<group>"; };
 		A0DA9DF1DCA6229AC6067611 /* Pods_Albums_access.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Albums_access.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,6 +78,7 @@
 				2406C6AC23D1E3810035EAAA /* Info.plist */,
 				2406C6B223D1E9150035EAAA /* AlbumCell.swift */,
 				245186B723D4F94400278EE9 /* PHAssetExtension.swift */,
+				24479D7223D5DF8A00C945C3 /* AlbumsCollectionViewController.swift */,
 			);
 			path = "Albums-access";
 			sourceTree = "<group>";
@@ -214,6 +217,7 @@
 			files = (
 				2406C6A323D1E37A0035EAAA /* ViewController.swift in Sources */,
 				2406C69F23D1E37A0035EAAA /* AppDelegate.swift in Sources */,
+				24479D7323D5DF8A00C945C3 /* AlbumsCollectionViewController.swift in Sources */,
 				245186B823D4F94400278EE9 /* PHAssetExtension.swift in Sources */,
 				2406C6A123D1E37A0035EAAA /* SceneDelegate.swift in Sources */,
 				2406C6B323D1E9150035EAAA /* AlbumCell.swift in Sources */,

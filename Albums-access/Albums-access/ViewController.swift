@@ -7,164 +7,172 @@ import UIKit
 import Foundation
 import Photos
 import AlamofireImage
+import JGProgressHUD
+
+struct Album {
+    let localIdentifier: String
+    let localizedTitle: String?
+    var thumbnail: UIImage?
+}
 
 class ViewController: UIViewController,
     UITableViewDelegate,
-UITableViewDataSource {
+    UITableViewDataSource {
+
+    @IBOutlet weak var tableView: UITableView!
     
-    
-    var imageArray = [UIImage]()
-    var albumsTitles:[String]=[]
-    var urls: [URL] = []
-    var photo:UIImage?
-    var images:[UIImage]=[]
-    
+    var albumModels: [Album] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadData()
-        fetchCustomAlbumPhotos()
-        print(images.count)
-    }
-    
-    func loadData(){
-        var assets:[PHAsset]=[]
-        let dispatchGroup = DispatchGroup()
-        let albumList = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options:nil)
-        for i in 0..<albumList.count{
-             let album = albumList.object(at: i)
-             self.albumsTitles.append(album.localizedTitle!)
-            print(album.localizedTitle)
-        }
         
-        for asset in assets{
-            dispatchGroup.enter()
-            asset.getURL { [weak self] (result) in
-                guard let strongSelf = self else {
-                    return
-                }
-
-                switch result {
-                case .failure(let error):
-                    print("Could not get url for asset with identifier: \(asset.localIdentifier). Error: \(error.localizedDescription)")
-
-                case .success(let url):
-                    strongSelf.urls.append(url)
-                }
-                dispatchGroup.leave()
+        PHPhotoLibrary.requestAuthorization { [weak self] (authorizationStatus) in
+            guard let strongSelf = self,
+                authorizationStatus == .authorized else {
+                return
             }
+            
+            strongSelf.loadData()
         }
-        dispatchGroup.notify(queue: .main) { [weak self] in
+    }
+
+    func loadData() {
+        
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let strongSelf = self else {
                 return
             }
+            let hud = JGProgressHUD(style: .dark)
+            DispatchQueue.main.async {
+                
+                hud.textLabel.text = "Loading"
+                hud.show(in: strongSelf
+                    .view)
+            }
 
-            print(strongSelf.urls)
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return albumsTitles.count
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: false)
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "AlbumCellId", for: indexPath)
-        let album = albumsTitles[indexPath.row]
-        if let albumCell = cell as? AlbumCell{
-            albumCell.albumsTitle.text = album
-        }
-        return cell
-    }
-    
-    func fetchCustomAlbumPhotos()
-    {
-        let albumName = "Recents"
-        var assetCollection = PHAssetCollection()
-        var albumFound = Bool()
-        var photoAssets = PHFetchResult<AnyObject>()
-        let fetchOptions = PHFetchOptions()
+            let dispatchGroup = DispatchGroup()
 
-        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
-        let collection = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: fetchOptions)
+            var albumModels: [Album] = []
+            
+            let albumsSmart = PHAssetCollection.fetchAssetCollections(
+                with: .smartAlbum,
+                subtype: .any,
+                options: nil
+            )
+            
+            let albums = PHAssetCollection.fetchAssetCollections(
+                with: .album,
+                subtype: .any,
+                options: nil
+            )
+            
+            albums.enumerateObjects { (phAssetCollection, _, _) in
+                if !albumModels.contains(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
+                    dispatchGroup.enter()
+                    
+                    albumModels.append(Album(
+                        localIdentifier: phAssetCollection.localIdentifier,
+                        localizedTitle: phAssetCollection.localizedTitle,
+                        thumbnail: nil
+                        ))
+                    
+                    let fetchOptions = PHFetchOptions()
+                    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+                    fetchOptions.fetchLimit = 1
+                    
+                    if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject{
+                        let options = PHImageRequestOptions()
+                        options.deliveryMode = .highQualityFormat
+                        
+                        PHImageManager.default().requestImage(
+                            for: lastAsset,
+                            targetSize: CGSize(width: 150, height: 150),
+                            contentMode: .aspectFill,
+                            options: options
+                        ) { (image, _) in
+                            if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
+                                albumModels[index].thumbnail = image
+                            }
+                            dispatchGroup.leave()
+                        }
+                    }else{dispatchGroup.leave()
+                    }
+                }
+            }
+            
+            albumsSmart.enumerateObjects { (phAssetCollection, _, _) in
+                if !albumModels.contains(where: { $0.localIdentifier == phAssetCollection.localIdentifier }) {
+                    dispatchGroup.enter()
 
-        if let firstObject = collection.firstObject{
-            //found the album
-            assetCollection = firstObject
-            albumFound = true
-        }
-        else { albumFound = false
-        }
-        _ = collection.count
-        photoAssets = PHAsset.fetchAssets(in: assetCollection, options: nil) as! PHFetchResult<AnyObject>
-        let imageManager = PHCachingImageManager()
-        photoAssets.enumerateObjects{(object: AnyObject!,
-            count: Int,
-            stop: UnsafeMutablePointer<ObjCBool>) in
-
-            if object is PHAsset{
-                let asset = object as! PHAsset
-                print("Inside  If object is PHAsset, This is number 1")
-
-                let imageSize = CGSize(width: asset.pixelWidth,
-                                       height: asset.pixelHeight)
-
-                /* For faster performance, and maybe degraded image */
-                let options = PHImageRequestOptions()
-                options.deliveryMode = .fastFormat
-                options.isSynchronous = true
-
-                imageManager.requestImage(for: asset,
-                                                  targetSize: imageSize,
-                                                  contentMode: .aspectFill,
-                                                  options: options,
-                                                  resultHandler: {
-                                                    (image, info) -> Void in
-                                                    self.photo = image!
-                                                    /* The image is now available to us */
-                                                    self.addImgToArray(uploadImage: self.photo!)
-                                                    print("enum for image, This is number 2")
-
-                })
-
+                    albumModels.append(Album(
+                        localIdentifier: phAssetCollection.localIdentifier,
+                        localizedTitle: phAssetCollection.localizedTitle,
+                        thumbnail: nil
+                    ))
+                    
+                    let fetchOptions = PHFetchOptions()
+                    fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+                    fetchOptions.fetchLimit = 1
+                    
+                    if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject {
+                        let options = PHImageRequestOptions()
+                        options.deliveryMode = .highQualityFormat
+                        
+                        PHImageManager.default().requestImage(
+                            for: lastAsset,
+                            targetSize: CGSize(width: 150, height: 150),
+                            contentMode: .aspectFill,
+                            options: options
+                        ) { (image, _) in
+                            if let index = albumModels.firstIndex(where: { $0.localIdentifier == phAssetCollection.localIdentifier }) {
+                                albumModels[index].thumbnail = image
+                            }
+                            
+                            dispatchGroup.leave()
+                        }
+                    } else {
+                        dispatchGroup.leave()
+                    }
+                }
+            }
+            
+            
+            
+            dispatchGroup.notify(queue: .main) { [weak strongSelf] in
+                guard let strongSelf = strongSelf else {
+                    return
+                }
+                hud.dismiss()
+                strongSelf.albumModels = albumModels
+                strongSelf.tableView.reloadData()
             }
         }
     }
 
-    func addImgToArray(uploadImage:UIImage)
-    {
-        self.images.append(uploadImage)
-
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return albumModels.count
     }
-    
 
-//    func getPhotosFromAlbum() {
-//
-//        let imageManager = PHImageManager.default()
-//
-//        let requestOptions = PHImageRequestOptions()
-//        requestOptions.isSynchronous = true
-//        requestOptions.deliveryMode = .highQualityFormat
-//
-//        let fetchOptions = PHFetchOptions()
-//        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-//
-//        let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-//
-//            if fetchResult.count > 0 {
-//
-//                for i in 0..<fetchResult.count {
-//
-//                    imageManager.requestImage(for: fetchResult.object(at: i), targetSize: CGSize(width: 300, height: 300), contentMode: .aspectFill, options: requestOptions, resultHandler: { image, error in
-//
-//                        self.imageArray.append(image!)
-//                    })
-//                }
-//            } else {
-//                print("nada")
-//        }
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "AlbumCellId", for: indexPath)
+        let album = albumModels[indexPath.row]
+        
+        if let albumCell = cell as? AlbumCell{
+            albumCell.albumsTitle.text = album.localizedTitle
+            if (album.thumbnail == nil){
+                albumCell.albumsFirstImage.image = UIImage(named: "DefaultImg")
+                
+            }
+            else{
+            albumCell.albumsFirstImage.image = album.thumbnail
+            }
+            albumCell.albumsFirstImage.layer.cornerRadius = 8.0
+        }
+        
+        return cell
+    }
 }
