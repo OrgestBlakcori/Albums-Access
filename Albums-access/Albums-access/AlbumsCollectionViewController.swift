@@ -12,9 +12,12 @@ private let reuseIdentifier = "Cell"
 
 class AlbumsCollectionViewController: UICollectionViewController {
 
+    var albumsIdentifier:String?
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        print(albumsIdentifier)
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 

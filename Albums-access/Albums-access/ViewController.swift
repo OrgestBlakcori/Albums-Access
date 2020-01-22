@@ -13,6 +13,7 @@ struct Album {
     let localIdentifier: String
     let localizedTitle: String?
     var thumbnail: UIImage?
+    var countImages: Int
 }
 
 class ViewController: UIViewController,
@@ -22,7 +23,8 @@ class ViewController: UIViewController,
     @IBOutlet weak var tableView: UITableView!
     
     var albumModels: [Album] = []
-
+    var albumDestinationIdentifier:String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,23 +34,25 @@ class ViewController: UIViewController,
                 return
             }
             
-            strongSelf.loadData()
+            DispatchQueue.main.async {
+                strongSelf.loadData()
+            }
         }
+        tableView.tableFooterView = UIView(frame: .zero)
     }
 
     func loadData() {
+            let hud = JGProgressHUD(style: .dark)
+            hud.textLabel.text = "Loading"
+            hud.show(in: self.view)
+        
         
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let strongSelf = self else {
                 return
             }
-            let hud = JGProgressHUD(style: .dark)
-            DispatchQueue.main.async {
-                
-                hud.textLabel.text = "Loading"
-                hud.show(in: strongSelf
-                    .view)
-            }
+            
+            
 
             let dispatchGroup = DispatchGroup()
 
@@ -65,7 +69,6 @@ class ViewController: UIViewController,
                 subtype: .any,
                 options: nil
             )
-            
             albums.enumerateObjects { (phAssetCollection, _, _) in
                 if !albumModels.contains(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
                     dispatchGroup.enter()
@@ -73,12 +76,14 @@ class ViewController: UIViewController,
                     albumModels.append(Album(
                         localIdentifier: phAssetCollection.localIdentifier,
                         localizedTitle: phAssetCollection.localizedTitle,
-                        thumbnail: nil
+                        thumbnail: nil,
+                        countImages: 0
                         ))
-                    
                     let fetchOptions = PHFetchOptions()
                     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                    fetchOptions.fetchLimit = 1
+                    //fetchOptions.fetchLimit = 1
+                    let photosCount = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
+                    //albumModels[index].countImages = photosCount
                     
                     if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject{
                         let options = PHImageRequestOptions()
@@ -92,6 +97,7 @@ class ViewController: UIViewController,
                         ) { (image, _) in
                             if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
                                 albumModels[index].thumbnail = image
+                                albumModels[index].countImages = photosCount.count
                             }
                             dispatchGroup.leave()
                         }
@@ -107,13 +113,13 @@ class ViewController: UIViewController,
                     albumModels.append(Album(
                         localIdentifier: phAssetCollection.localIdentifier,
                         localizedTitle: phAssetCollection.localizedTitle,
-                        thumbnail: nil
+                        thumbnail: nil,
+                        countImages: 0
                     ))
-                    
                     let fetchOptions = PHFetchOptions()
                     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                    fetchOptions.fetchLimit = 1
-                    
+                    //fetchOptions.fetchLimit = 1
+                    let photosCount = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
                     if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject {
                         let options = PHImageRequestOptions()
                         options.deliveryMode = .highQualityFormat
@@ -126,6 +132,7 @@ class ViewController: UIViewController,
                         ) { (image, _) in
                             if let index = albumModels.firstIndex(where: { $0.localIdentifier == phAssetCollection.localIdentifier }) {
                                 albumModels[index].thumbnail = image
+                                albumModels[index].countImages = photosCount.count
                             }
                             
                             dispatchGroup.leave()
@@ -149,25 +156,37 @@ class ViewController: UIViewController,
         }
     }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let identifier:String = segue.identifier else {
+            return
+        }
+        
+        if (identifier == "SegueAlbum"){
+            let destinationController: AlbumsCollectionViewController = segue.destination as! AlbumsCollectionViewController
+            destinationController.albumsIdentifier = albumDestinationIdentifier
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return albumModels.count
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        albumDestinationIdentifier = albumModels[indexPath.row].localIdentifier
         tableView.deselectRow(at: indexPath, animated: false)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "AlbumCellId", for: indexPath)
         let album = albumModels[indexPath.row]
-        
+
         if let albumCell = cell as? AlbumCell{
+            
             albumCell.albumsTitle.text = album.localizedTitle
+            albumCell.albumsCountImage.text = String(album.countImages)
             if (album.thumbnail == nil){
                 albumCell.albumsFirstImage.image = UIImage(named: "DefaultImg")
-                
-            }
-            else{
+            }else{
             albumCell.albumsFirstImage.image = album.thumbnail
             }
             albumCell.albumsFirstImage.layer.cornerRadius = 8.0

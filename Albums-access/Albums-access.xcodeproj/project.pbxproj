@@ -71,6 +71,7 @@
 			children = (
 				2406C69E23D1E37A0035EAAA /* AppDelegate.swift */,
 				2406C6A023D1E37A0035EAAA /* SceneDelegate.swift */,
+				24479D7223D5DF8A00C945C3 /* AlbumsCollectionViewController.swift */,
 				2406C6A223D1E37A0035EAAA /* ViewController.swift */,
 				2406C6A423D1E37A0035EAAA /* Main.storyboard */,
 				2406C6A723D1E3810035EAAA /* Assets.xcassets */,
@@ -78,7 +79,6 @@
 				2406C6AC23D1E3810035EAAA /* Info.plist */,
 				2406C6B223D1E9150035EAAA /* AlbumCell.swift */,
 				245186B723D4F94400278EE9 /* PHAssetExtension.swift */,
-				24479D7223D5DF8A00C945C3 /* AlbumsCollectionViewController.swift */,
 			);
 			path = "Albums-access";
 			sourceTree = "<group>";
