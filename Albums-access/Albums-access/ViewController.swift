@@ -45,34 +45,35 @@ class ViewController: UIViewController,
             let hud = JGProgressHUD(style: .dark)
             hud.textLabel.text = "Loading"
             hud.show(in: self.view)
-        
-        
+
+
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let strongSelf = self else {
                 return
             }
-            
-            
+
+
 
             let dispatchGroup = DispatchGroup()
 
             var albumModels: [Album] = []
-            
+
             let albumsSmart = PHAssetCollection.fetchAssetCollections(
                 with: .smartAlbum,
                 subtype: .any,
                 options: nil
             )
-            
+
             let albums = PHAssetCollection.fetchAssetCollections(
                 with: .album,
                 subtype: .any,
                 options: nil
             )
+
             albums.enumerateObjects { (phAssetCollection, _, _) in
                 if !albumModels.contains(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
                     dispatchGroup.enter()
-                    
+
                     albumModels.append(Album(
                         localIdentifier: phAssetCollection.localIdentifier,
                         localizedTitle: phAssetCollection.localizedTitle,
@@ -84,17 +85,18 @@ class ViewController: UIViewController,
                     //fetchOptions.fetchLimit = 1
                     let photosCount = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
                     //albumModels[index].countImages = photosCount
-                    
+
                     if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject{
                         let options = PHImageRequestOptions()
                         options.deliveryMode = .highQualityFormat
-                        
+
                         PHImageManager.default().requestImage(
                             for: lastAsset,
                             targetSize: CGSize(width: 150, height: 150),
                             contentMode: .aspectFill,
                             options: options
                         ) { (image, _) in
+                            
                             if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
                                 albumModels[index].thumbnail = image
                                 albumModels[index].countImages = photosCount.count
@@ -155,25 +157,20 @@ class ViewController: UIViewController,
             }
         }
     }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let identifier:String = segue.identifier else {
-            return
-        }
-        
-        if (identifier == "SegueAlbum"){
-            let destinationController: AlbumsCollectionViewController = segue.destination as! AlbumsCollectionViewController
-            destinationController.albumsIdentifier = albumDestinationIdentifier
-        }
-    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return albumModels.count
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        albumDestinationIdentifier = albumModels[indexPath.row].localIdentifier
         tableView.deselectRow(at: indexPath, animated: false)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        
+        if let albumViewController = storyboard.instantiateViewController(identifier: "AlbumsCollectionViewController") as? AlbumsCollectionViewController {
+            albumViewController.albumIdentifier = albumModels[indexPath.row].localIdentifier
+            navigationController?.pushViewController(albumViewController, animated: true)
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
