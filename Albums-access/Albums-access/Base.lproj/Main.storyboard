@@ -184,17 +184,15 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iXz-Un-5Cu">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="h7Q-tm-bUp">
-                                        <rect key="frame" x="0.0" y="-88" width="414" height="896"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="896" translatesAutoresizingMaskIntoConstraints="NO" id="h7Q-tm-bUp">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                     </imageView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="bottom" secondItem="aSe-5S-UXN" secondAttribute="bottom" id="6lG-ge-9KI"/>
-                                    <constraint firstAttribute="bottom" secondItem="h7Q-tm-bUp" secondAttribute="bottom" id="8Qj-Z3-0RD"/>
-                                    <constraint firstAttribute="trailing" secondItem="h7Q-tm-bUp" secondAttribute="trailing" id="ERG-PF-D6C"/>
-                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="leading" secondItem="ySF-1w-SBR" secondAttribute="leading" id="VVm-ne-Ag4"/>
-                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="top" secondItem="aSe-5S-UXN" secondAttribute="top" id="mwB-3H-hUh"/>
-                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="trailing" secondItem="aSe-5S-UXN" secondAttribute="trailing" id="x7H-Qq-5Gh"/>
+                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="leading" secondItem="iXz-Un-5Cu" secondAttribute="leading" id="GuK-DA-HOD"/>
+                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="top" secondItem="iXz-Un-5Cu" secondAttribute="top" id="dO1-l4-qSn"/>
+                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="bottom" secondItem="iXz-Un-5Cu" secondAttribute="bottom" id="eaP-xh-Cby"/>
+                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="trailing" secondItem="iXz-Un-5Cu" secondAttribute="trailing" id="gKq-hT-Hh1"/>
                                 </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="ySF-1w-SBR"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="aSe-5S-UXN"/>
@@ -215,12 +213,12 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="centerY" secondItem="gfK-08-NM6" secondAttribute="centerY" id="3Yd-c4-3w2"/>
-                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="centerX" secondItem="gfK-08-NM6" secondAttribute="centerX" id="4nb-Ic-FtA"/>
-                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="leading" secondItem="evb-ov-YtL" secondAttribute="leading" id="8u3-z5-41O"/>
-                            <constraint firstItem="gfK-08-NM6" firstAttribute="centerY" secondItem="vOU-EC-HLi" secondAttribute="centerY" id="Fae-jc-AqE"/>
-                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="top" secondItem="vOU-EC-HLi" secondAttribute="topMargin" constant="-88" id="sgN-Kp-99R"/>
-                            <constraint firstItem="gfK-08-NM6" firstAttribute="centerX" secondItem="vOU-EC-HLi" secondAttribute="centerX" id="vhm-qv-gcv"/>
+                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="top" secondItem="vOU-EC-HLi" secondAttribute="top" id="HDw-M0-dPm"/>
+                            <constraint firstAttribute="bottom" secondItem="iXz-Un-5Cu" secondAttribute="bottom" id="M6h-JC-VsJ"/>
+                            <constraint firstItem="gfK-08-NM6" firstAttribute="centerX" secondItem="vOU-EC-HLi" secondAttribute="centerX" id="RNM-18-UFo"/>
+                            <constraint firstItem="gfK-08-NM6" firstAttribute="centerY" secondItem="vOU-EC-HLi" secondAttribute="centerY" id="Zxj-DJ-87N"/>
+                            <constraint firstAttribute="trailing" secondItem="iXz-Un-5Cu" secondAttribute="trailing" id="mO0-hK-ZIf"/>
+                            <constraint firstItem="iXz-Un-5Cu" firstAttribute="leading" secondItem="vOU-EC-HLi" secondAttribute="leading" id="sCr-7l-cel"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="evb-ov-YtL"/>
                     </view>
