@@ -22,9 +22,11 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        scrollView.maximumZoomScale = 4
-        scrollView.minimumZoomScale = 1
-        
+        getVideo()
+    }
+    
+    func getVideo(){
+        scrollView.contentInsetAdjustmentBehavior = .never
         if let asset = asset {
             let options = PHImageRequestOptions()
             options.deliveryMode = .highQualityFormat
@@ -47,6 +49,11 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
             case .unknown:
                 print("other")
             case .image:
+                scrollView.maximumZoomScale = 4
+                scrollView.minimumZoomScale = 1
+                let doubleTapGest = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTapScrollView(recognizer:)))
+                doubleTapGest.numberOfTapsRequired = 2
+                scrollView.addGestureRecognizer(doubleTapGest)
                 print("other")
             case .audio:
                 print("other")
@@ -54,9 +61,7 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
                 print("other")
             }
         }
-        let doubleTapGest = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTapScrollView(recognizer:)))
-        doubleTapGest.numberOfTapsRequired = 2
-        scrollView.addGestureRecognizer(doubleTapGest)
+
     }
     
     @objc func handleDoubleTapScrollView(recognizer: UITapGestureRecognizer) {
@@ -76,37 +81,33 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
         zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
         return zoomRect
     }
-    
+
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
     }
     
-    func reCenterImage(){
-        
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        if scrollView.zoomScale > 1 {
+            if let image = imageView.image {
+                let ratioW = imageView.frame.width / image.size.width
+                let ratioH = imageView.frame.height / image.size.height
+
+                let ratio = ratioW < ratioH ? ratioW : ratioH
+                let newWidth = image.size.width * ratio
+                let newHeight = image.size.height * ratio
+                let conditionLeft = newWidth*scrollView.zoomScale > imageView.frame.width
+                let left = 0.5 * (conditionLeft ? newWidth - imageView.frame.width : (scrollView.frame.width - scrollView.contentSize.width))
+                let conditioTop = newHeight*scrollView.zoomScale > imageView.frame.height
+                
+                let top = 0.5 * (conditioTop ? newHeight - imageView.frame.height : (scrollView.frame.height - scrollView.contentSize.height))
+                
+                scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
+                
+            }
+        } else {
+            scrollView.contentInset = .zero
+        }
     }
-    
-//    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-//        reCenterImage()
-//        if scrollView.zoomScale > 1 {
-//            if let image = imageView.image {
-//                let ratioW = imageView.frame.width / image.size.width
-//                let ratioH = imageView.frame.height / image.size.height
-//
-//                let ratio = ratioW < ratioH ? ratioW : ratioH
-//                let newWidth = image.size.width * ratio
-//                let newHeight = image.size.height * ratio
-//                let left = 0.5 * (newWidth * scrollView.zoomScale > imageView.frame.width ? (newWidth - imageView.frame.width) : (scrollView.frame.width - scrollView.contentSize.width))
-//                let top = 0.5 * (newHeight * scrollView.zoomScale > imageView.frame.height ? (newHeight - imageView.frame.height) : (scrollView.frame.height - scrollView.contentSize.height))
-//
-//
-//
-//                scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
-//
-//            }
-//        } else {
-//            scrollView.contentInset = .zero
-//        }
-//    }
     
     func playVideo (view: UIViewController, videoAsset:PHAsset){
      PHCachingImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (asset, _, _) in

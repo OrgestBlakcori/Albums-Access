@@ -184,8 +184,11 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iXz-Un-5Cu">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="896" translatesAutoresizingMaskIntoConstraints="NO" id="h7Q-tm-bUp">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="h7Q-tm-bUp">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="896" id="iij-Fe-wVv"/>
+                                        </constraints>
                                     </imageView>
                                 </subviews>
                                 <constraints>
@@ -193,6 +196,7 @@
                                     <constraint firstItem="h7Q-tm-bUp" firstAttribute="top" secondItem="iXz-Un-5Cu" secondAttribute="top" id="dO1-l4-qSn"/>
                                     <constraint firstItem="h7Q-tm-bUp" firstAttribute="bottom" secondItem="iXz-Un-5Cu" secondAttribute="bottom" id="eaP-xh-Cby"/>
                                     <constraint firstItem="h7Q-tm-bUp" firstAttribute="trailing" secondItem="iXz-Un-5Cu" secondAttribute="trailing" id="gKq-hT-Hh1"/>
+                                    <constraint firstItem="h7Q-tm-bUp" firstAttribute="centerX" secondItem="iXz-Un-5Cu" secondAttribute="centerX" id="ix5-v4-haB"/>
                                 </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="ySF-1w-SBR"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="aSe-5S-UXN"/>
