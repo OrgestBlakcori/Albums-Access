@@ -11,5 +11,6 @@ import UIKit
 class PhotoCell: UICollectionViewCell {
     
     @IBOutlet weak var imageLabel: UIImageView!
+    @IBOutlet weak var isVideo: UILabel!
     
 }

@@ -14,6 +14,7 @@ struct Album {
     let localizedTitle: String?
     var thumbnail: UIImage?
     var countImages: Int
+    var phAssets: [PHAsset]
 }
 
 class ViewController: UIViewController,
@@ -21,31 +22,31 @@ class ViewController: UIViewController,
     UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
-    
-    var albumModels: [Album] = []
-    var albumDestinationIdentifier:String?
-    
+
+    private var albumModels: [Album] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         PHPhotoLibrary.requestAuthorization { [weak self] (authorizationStatus) in
             guard let strongSelf = self,
                 authorizationStatus == .authorized else {
                 return
             }
-            
+
             DispatchQueue.main.async {
                 strongSelf.loadData()
             }
         }
-        tableView.tableFooterView = UIView(frame: .zero)
+
+        tableView.tableFooterView = UIView()
     }
 
     func loadData() {
-            let hud = JGProgressHUD(style: .dark)
-            hud.textLabel.text = "Loading"
-            hud.show(in: self.view)
-
+//            let hud = JGProgressHUD(style: .dark)
+//            hud.textLabel.text = "Loading"
+//            hud.show(in: self.view)
+        UIActivityIndicatorView().startAnimating()
 
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let strongSelf = self else {
@@ -78,15 +79,21 @@ class ViewController: UIViewController,
                         localIdentifier: phAssetCollection.localIdentifier,
                         localizedTitle: phAssetCollection.localizedTitle,
                         thumbnail: nil,
-                        countImages: 0
-                        ))
+                        countImages: 0,
+                        phAssets: []
+                    ))
+
                     let fetchOptions = PHFetchOptions()
                     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                    //fetchOptions.fetchLimit = 1
-                    let photosCount = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
-                    //albumModels[index].countImages = photosCount
+                    let phAssets = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
 
-                    if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject{
+                    phAssets.enumerateObjects { (phAsset, _, _) in
+                        if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}) {
+                            albumModels[index].phAssets.append(phAsset)
+                        }
+                    }
+
+                    if let lastAsset = phAssets.firstObject {
                         let options = PHImageRequestOptions()
                         options.deliveryMode = .highQualityFormat
 
@@ -96,18 +103,19 @@ class ViewController: UIViewController,
                             contentMode: .aspectFill,
                             options: options
                         ) { (image, _) in
-                            
-                            if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}){
+                            if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}) {
                                 albumModels[index].thumbnail = image
-                                albumModels[index].countImages = photosCount.count
+                                albumModels[index].countImages = phAssets.count
                             }
+
                             dispatchGroup.leave()
                         }
-                    }else{dispatchGroup.leave()
+                    } else {
+                        dispatchGroup.leave()
                     }
                 }
             }
-            
+
             albumsSmart.enumerateObjects { (phAssetCollection, _, _) in
                 if !albumModels.contains(where: { $0.localIdentifier == phAssetCollection.localIdentifier }) {
                     dispatchGroup.enter()
@@ -116,13 +124,21 @@ class ViewController: UIViewController,
                         localIdentifier: phAssetCollection.localIdentifier,
                         localizedTitle: phAssetCollection.localizedTitle,
                         thumbnail: nil,
-                        countImages: 0
+                        countImages: 0,
+                        phAssets: []
                     ))
+
                     let fetchOptions = PHFetchOptions()
                     fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                    //fetchOptions.fetchLimit = 1
-                    let photosCount = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
-                    if let lastAsset = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions).firstObject {
+                    let phAssets = PHAsset.fetchAssets(in: phAssetCollection, options: fetchOptions)
+                    
+                    phAssets.enumerateObjects { (phAsset, _, _) in
+                        if let index = albumModels.firstIndex(where: {$0.localIdentifier == phAssetCollection.localIdentifier}) {
+                            albumModels[index].phAssets.append(phAsset)
+                        }
+                    }
+
+                    if let lastAsset = phAssets.firstObject {
                         let options = PHImageRequestOptions()
                         options.deliveryMode = .highQualityFormat
                         
@@ -134,7 +150,7 @@ class ViewController: UIViewController,
                         ) { (image, _) in
                             if let index = albumModels.firstIndex(where: { $0.localIdentifier == phAssetCollection.localIdentifier }) {
                                 albumModels[index].thumbnail = image
-                                albumModels[index].countImages = photosCount.count
+                                albumModels[index].countImages = phAssets.count
                             }
                             
                             dispatchGroup.leave()
@@ -144,16 +160,16 @@ class ViewController: UIViewController,
                     }
                 }
             }
-            
-            
-            
+
             dispatchGroup.notify(queue: .main) { [weak strongSelf] in
                 guard let strongSelf = strongSelf else {
                     return
                 }
-                hud.dismiss()
+                
                 strongSelf.albumModels = albumModels
                 strongSelf.tableView.reloadData()
+                UIActivityIndicatorView().stopAnimating()
+                //hud.dismiss()
             }
         }
     }
@@ -168,7 +184,7 @@ class ViewController: UIViewController,
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         
         if let albumViewController = storyboard.instantiateViewController(identifier: "AlbumsCollectionViewController") as? AlbumsCollectionViewController {
-            albumViewController.albumIdentifier = albumModels[indexPath.row].localIdentifier
+            albumViewController.album = albumModels[indexPath.row]
             navigationController?.pushViewController(albumViewController, animated: true)
         }
     }

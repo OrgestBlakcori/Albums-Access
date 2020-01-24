@@ -9,10 +9,15 @@
 import UIKit
 import Photos
 
-class AlbumsCollectionViewController: UICollectionViewController,UICollectionViewDelegateFlowLayout {
+struct Asset {
+    let phAsset: PHAsset
+    let image: UIImage?
+}
 
-    var albumIdentifier: String!
-    private var images: [UIImage?] = []
+class AlbumsCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+
+    var album: Album?
+    private var assets: [Asset] = []
     
     private let reuseIdentifier = "PhotoCellId"
     
@@ -22,7 +27,7 @@ class AlbumsCollectionViewController: UICollectionViewController,UICollectionVie
     }
 
     func loadAlbum() {
-        guard let albumIdentifier = albumIdentifier else {
+        guard let album = album else {
             return
         }
         
@@ -31,32 +36,26 @@ class AlbumsCollectionViewController: UICollectionViewController,UICollectionVie
                 return
             }
                         
-            guard let album = PHAssetCollection.fetchAssetCollections(
-                    withLocalIdentifiers: [albumIdentifier],
-                    options: PHFetchOptions()
-                ).firstObject else {
-                return
-            }
-            
             let dispatchGroup = DispatchGroup()
-            var images: [UIImage?] = []
+            var assets: [Asset] = []
             
-            let albumAssets = PHAsset.fetchAssets(in: album, options: nil)
-            
-            
-            albumAssets.enumerateObjects { (asset, _, _) in
+            for phAsset in album.phAssets {
                 dispatchGroup.enter()
                 
                 let options = PHImageRequestOptions()
                 options.deliveryMode = .highQualityFormat
                 
                 PHImageManager.default().requestImage(
-                    for: asset,
+                    for: phAsset,
                     targetSize: CGSize(width: 200, height: 200),
                     contentMode: .aspectFill,
                     options: options
                 ) { (image, _) in
-                    images.append(image)
+                    assets.append(Asset(
+                        phAsset: phAsset,
+                        image: image
+                    ))
+                    
                     dispatchGroup.leave()
                 }
             }
@@ -66,16 +65,14 @@ class AlbumsCollectionViewController: UICollectionViewController,UICollectionVie
                     return
                 }
                 
-                strongSelf.images = images
+                strongSelf.assets = assets
                 strongSelf.collectionView.reloadData()
             }
         }
     }
-
-    
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count
+        return assets.count
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -91,19 +88,39 @@ class AlbumsCollectionViewController: UICollectionViewController,UICollectionVie
         return 0
     }
 
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        
+        if let photoViewController = storyboard.instantiateViewController(identifier: "ImageViewController") as? ImageViewController {
+            photoViewController.asset = assets[indexPath.row]
+            navigationController?.pushViewController(photoViewController, animated: true)
+        }
+
+    }
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
         
-        let image = images[indexPath.row]
-        
+        let image = assets[indexPath.row].image
+        let video = assets[indexPath.row].phAsset
         if let photoCell = cell as? PhotoCell {
             if let image = image {
                 photoCell.imageLabel.image = image
+                
+                if video.mediaType == .video {
+                    photoCell.isVideo.isHidden = false
+                    photoCell.isVideo.text = "\(Int(video.duration)/60):\(Int(video.duration)%60)"
+                }
             } else {
                 photoCell.imageLabel.image = UIImage(named: "DefaultImg")
             }
+            
+
+            
         }
-        
+//        if (phAsset.mediaType == .video){
+//
+//        }
         return cell
     }
     
