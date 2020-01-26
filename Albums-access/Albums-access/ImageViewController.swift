@@ -1,11 +1,7 @@
-//
 //  ImageViewController.swift
 //  Albums-access
-//
 //  Created by Solaborate on 1/23/20.
 //  Copyright © 2020 Solaborate. All rights reserved.
-//
-
 import Foundation
 import UIKit
 import Photos
@@ -14,17 +10,16 @@ import AVKit
 class ImageViewController:UIViewController, UIScrollViewDelegate{
 
     var asset: Asset?
-    
+
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var playButon: UIButton!
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         getVideo()
     }
-    
+
     func getVideo(){
         scrollView.contentInsetAdjustmentBehavior = .never
         if let asset = asset {
@@ -63,7 +58,7 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
         }
 
     }
-    
+
     @objc func handleDoubleTapScrollView(recognizer: UITapGestureRecognizer) {
         if scrollView.zoomScale == 1 {
             scrollView.zoom(to: zoomRectForScale(scale: scrollView.maximumZoomScale, center: recognizer.location(in: recognizer.view)), animated: true)
@@ -85,7 +80,7 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
     }
-    
+
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         if scrollView.zoomScale > 1 {
             if let image = imageView.image {
@@ -98,17 +93,17 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
                 let conditionLeft = newWidth*scrollView.zoomScale > imageView.frame.width
                 let left = 0.5 * (conditionLeft ? newWidth - imageView.frame.width : (scrollView.frame.width - scrollView.contentSize.width))
                 let conditioTop = newHeight*scrollView.zoomScale > imageView.frame.height
-                
+
                 let top = 0.5 * (conditioTop ? newHeight - imageView.frame.height : (scrollView.frame.height - scrollView.contentSize.height))
-                
+
                 scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
-                
+
             }
         } else {
             scrollView.contentInset = .zero
         }
     }
-    
+
     func playVideo (view: UIViewController, videoAsset:PHAsset){
      PHCachingImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (asset, _, _) in
             let asset = asset as! AVURLAsset
@@ -123,10 +118,9 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
             }
         }
     }
-        
+
     @IBAction func pressPlayButon(_ sender: Any) {
         //playButon.isHidden = true
         playVideo(view: self, videoAsset: asset!.phAsset)
     }
-    
 }
