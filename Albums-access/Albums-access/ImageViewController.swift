@@ -10,7 +10,8 @@ import AVKit
 class ImageViewController:UIViewController, UIScrollViewDelegate{
 
     var asset: Asset?
-
+    static let shared = ImageViewController()
+    
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var playButon: UIButton!
@@ -18,6 +19,7 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         getVideo()
+        
     }
 
     func getVideo(){
@@ -104,23 +106,29 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
         }
     }
 
-    func playVideo (view: UIViewController, videoAsset:PHAsset){
-     PHCachingImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (asset, _, _) in
-            let asset = asset as! AVURLAsset
-
-            DispatchQueue.main.async {
-                let player = AVPlayer(url: asset.url)
-                let playerViewController = AVPlayerViewController()
-                playerViewController.player = player
-                view.present(playerViewController, animated: true) {
-                    playerViewController.player!.play()
-                }
-            }
-        }
-    }
+//    func playVideo (view: UIViewController, videoAsset:PHAsset){
+//     PHCachingImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (asset, _, _) in
+//            let asset = asset as! AVURLAsset
+//            DispatchQueue.main.async {
+//                print(asset.accessibilityFrame)
+//                let player = AVPlayer(url: asset.url)
+//                let playerViewController = AVPlayerViewController()
+//                playerViewController.player = player
+//                view.present(playerViewController, animated: true) {
+//                    playerViewController.player!.play()
+//                }
+//            }
+//        }
+//    }
 
     @IBAction func pressPlayButon(_ sender: Any) {
-        //playButon.isHidden = true
-        playVideo(view: self, videoAsset: asset!.phAsset)
+//        playVideo(view: self, videoAsset: asset!.phAsset)
+        PHCachingImageManager().requestAVAsset(forVideo: asset!.phAsset, options: nil) { (asset, _, _) in
+            let asset = asset as! AVURLAsset
+            let videoLauncher = VideoLauncher()
+            DispatchQueue.main.async {
+            videoLauncher.showVideoPlayer(assetUrl: asset.url)
+            }
+        }
     }
 }
