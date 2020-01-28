@@ -99,35 +99,26 @@ class ImageViewController:UIViewController, UIScrollViewDelegate{
                 let top = 0.5 * (conditioTop ? newHeight - imageView.frame.height : (scrollView.frame.height - scrollView.contentSize.height))
 
                 scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
-
             }
         } else {
             scrollView.contentInset = .zero
         }
     }
 
-//    func playVideo (view: UIViewController, videoAsset:PHAsset){
-//     PHCachingImageManager().requestAVAsset(forVideo: videoAsset, options: nil) { (asset, _, _) in
-//            let asset = asset as! AVURLAsset
-//            DispatchQueue.main.async {
-//                print(asset.accessibilityFrame)
-//                let player = AVPlayer(url: asset.url)
-//                let playerViewController = AVPlayerViewController()
-//                playerViewController.player = player
-//                view.present(playerViewController, animated: true) {
-//                    playerViewController.player!.play()
-//                }
-//            }
-//        }
-//    }
-
     @IBAction func pressPlayButon(_ sender: Any) {
 //        playVideo(view: self, videoAsset: asset!.phAsset)
         PHCachingImageManager().requestAVAsset(forVideo: asset!.phAsset, options: nil) { (asset, _, _) in
             let asset = asset as! AVURLAsset
-            let videoLauncher = VideoLauncher()
+            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+            
+            
             DispatchQueue.main.async {
-            videoLauncher.showVideoPlayer(assetUrl: asset.url)
+                if let videoViewController = storyboard.instantiateViewController(identifier: "VideoViewController") as? VideoViewController {
+                    videoViewController.videoURL = asset.url
+                    videoViewController.modalPresentationStyle = .fullScreen
+                    self.navigationController?.present(videoViewController, animated: true, completion: nil)
+                }
+                
             }
         }
     }
