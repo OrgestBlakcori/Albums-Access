@@ -16,7 +16,7 @@ class VideoViewController: UIViewController {
     
     var videoURL:URL?
 //12
-    
+    static let shared = VideoViewController()
     
     @IBOutlet weak var videoView: UIView!
     @IBOutlet weak var videoDurationLabel: UILabel!

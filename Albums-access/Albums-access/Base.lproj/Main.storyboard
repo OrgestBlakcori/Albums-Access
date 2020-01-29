@@ -340,10 +340,12 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
+                        <outlet property="delegate" destination="DRx-NG-Qb3" id="bNc-fV-W4t"/>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="sIZ-Hf-B4I"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wha-JG-WBE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <customObject id="DRx-NG-Qb3" customClass="ZoomTransitioningDelegate" customModule="Albums_access" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="137.68115942028987" y="129.91071428571428"/>
         </scene>

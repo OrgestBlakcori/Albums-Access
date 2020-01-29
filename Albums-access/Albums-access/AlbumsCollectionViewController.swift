@@ -18,7 +18,7 @@ class AlbumsCollectionViewController: UICollectionViewController, UICollectionVi
 
     var album: Album?
     private var assets: [Asset] = []
-    
+    var selectedIndexPath: IndexPath!
     private let reuseIdentifier = "PhotoCellId"
     
     override func viewDidLoad() {
@@ -90,7 +90,7 @@ class AlbumsCollectionViewController: UICollectionViewController, UICollectionVi
 
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        
+        selectedIndexPath = indexPath
         if let photoViewController = storyboard.instantiateViewController(identifier: "ImageViewController") as? ImageViewController {
             photoViewController.asset = assets[indexPath.row]
             navigationController?.pushViewController(photoViewController, animated: true)
@@ -125,3 +125,19 @@ class AlbumsCollectionViewController: UICollectionViewController, UICollectionVi
     }
     
 }
+
+extension AlbumsCollectionViewController: ZoomingViewController {
+    
+    func zooomingBackgroundView(for transition: ZoomTransitioningDelegate) -> UIView? {
+        return nil
+    }
+    
+    func zoomingImageView(for transition: ZoomTransitioningDelegate) -> UIImageView? {
+        if let indexPath = selectedIndexPath {
+            let cell = collectionView?.cellForItem(at: indexPath) as? PhotoCell
+            return cell?.imageLabel
+        }
+        return nil
+    }
+    
+    }
