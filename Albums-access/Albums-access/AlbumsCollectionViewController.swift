@@ -127,6 +127,10 @@ class AlbumsCollectionViewController: UICollectionViewController, UICollectionVi
 }
 
 extension AlbumsCollectionViewController: ZoomingViewController {
+//    func buttonState(for transition: ZoomTransitioningDelegate) -> UIButton? {
+//        <#code#>
+//    }
+//
     
     func zooomingBackgroundView(for transition: ZoomTransitioningDelegate) -> UIView? {
         return nil
@@ -139,5 +143,4 @@ extension AlbumsCollectionViewController: ZoomingViewController {
         }
         return nil
     }
-    
-    }
+}

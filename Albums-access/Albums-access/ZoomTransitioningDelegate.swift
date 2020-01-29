@@ -13,6 +13,7 @@ import UIKit
 protocol ZoomingViewController {
     func zoomingImageView(for transition: ZoomTransitioningDelegate) -> UIImageView?
     func zooomingBackgroundView(for transition: ZoomTransitioningDelegate) -> UIView?
+    //func buttonState(for transition: ZoomTransitioningDelegate) -> UIButton?
 }
 
 enum TransitionState {
