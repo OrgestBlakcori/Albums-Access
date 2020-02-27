@@ -8,4 +8,5 @@ target 'Albums-access' do
   # Pods for Albums-access 
   pod 'Alamofire', '~> 5.0.0-rc.3'
   pod 'AlamofireImage', '4.0.0-beta.6'
+  pod 'JGProgressHUD'
 end
